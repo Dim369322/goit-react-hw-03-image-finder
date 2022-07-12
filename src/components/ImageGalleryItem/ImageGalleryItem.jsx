@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import styles from 'components/ImageGalleryItem/ImageGalleryItem.module.css';
 
 export const ImageGalleryItem = ({ url, tags, largeImageURL, onOpenModal }) => {
@@ -11,4 +12,11 @@ export const ImageGalleryItem = ({ url, tags, largeImageURL, onOpenModal }) => {
       />
     </li>
   );
+};
+
+ImageGalleryItem.propTypes = {
+  url: PropTypes.string.isRequired,
+  tags: PropTypes.string.isRequired,
+  largeImageURL: PropTypes.string.isRequired,
+  onOpenModal: PropTypes.func.isRequired,
 };

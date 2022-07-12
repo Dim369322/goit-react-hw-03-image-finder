@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import styles from 'components/Searchbar/Searchbar.module.css';
 
 export const Searchbar = ({ onSubmit }) => {
@@ -19,4 +20,8 @@ export const Searchbar = ({ onSubmit }) => {
       </form>
     </header>
   );
+};
+
+Searchbar.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
 };
