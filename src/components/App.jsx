@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { searchingApi } from './API/API';
+import { searchingApi } from '../Api/Api';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import Modal from './Modal/Modal';
@@ -28,12 +28,10 @@ class App extends Component {
   }
 
   searchImages = async prevState => {
+    const { page, searchQuery, totalImages, images } = this.state;
     try {
-      if (this.state.page === 1) {
-        const { hits, totalHits } = await searchingApi(
-          this.state.searchQuery,
-          this.state.page
-        );
+      if (page === 1) {
+        const { hits, totalHits } = await searchingApi(searchQuery, page);
 
         this.setState({
           images: [...hits],
@@ -42,7 +40,7 @@ class App extends Component {
         });
 
         if (totalHits === 0) {
-          toast.error(
+          toast.warning(
             'Sorry, there are no images matching your search query. Please try again.',
             {
               position: 'top-right',
@@ -57,16 +55,29 @@ class App extends Component {
         }
         return;
       }
-      const { hits } = await searchingApi(
-        this.state.searchQuery,
-        this.state.page
-      );
+      const { hits } = await searchingApi(searchQuery, page);
 
       this.setState({
         images: [...prevState.images, ...hits],
         status: false,
-        totalImages: prevState.totalImages - hits.length,
       });
+
+      const total = totalImages - (images.length + hits.length);
+
+      if (total <= 0) {
+        toast.info(
+          "We're sorry, but you've reached the end of search results.",
+          {
+            position: 'top-right',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          }
+        );
+      }
     } catch (error) {
       toast.error('Something went wrong, please reload the page.', {
         position: 'top-right',
@@ -93,7 +104,7 @@ class App extends Component {
     });
 
     if (query.value.trim() === '') {
-      toast.error("You haven't entered anything.", {
+      toast.warning("You haven't entered anything.", {
         position: 'top-right',
         autoClose: 3000,
         hideProgressBar: false,
@@ -103,8 +114,6 @@ class App extends Component {
         progress: undefined,
       });
     }
-
-    evt.target.reset();
   };
 
   loadMore = () => {
@@ -112,21 +121,6 @@ class App extends Component {
       page: page + 1,
       status: true,
     }));
-
-    if (this.state.totalImages <= 0) {
-      toast.error(
-        "We're sorry, but you've reached the end of search results.",
-        {
-          position: 'top-right',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        }
-      );
-    }
   };
 
   openModal = img => {
@@ -172,7 +166,9 @@ class App extends Component {
                 <TailSpin color="#00BFFF" height={80} width={80} />
               </div>
             )}
-            <Button onLoadMore={this.loadMore} />
+            {totalImages !== images.length && (
+              <Button onLoadMore={this.loadMore} />
+            )}
           </div>
         )}
 
